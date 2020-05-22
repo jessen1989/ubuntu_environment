@@ -6,7 +6,7 @@ if test "$install_software" = "Y"; then
     outputHandler "comment" "Installing apache2"
 	command "sudo apt-get install -y apache2 apache2-utils ssl-cert"
 	
-	outputHandler "comment" "Installing PHP7.2 and extra modules"
+	outputHandler "comment" "Installing PHP7.4 and extra modules"
 
 	# INSTALL PHP5.5
 	#	sudo apt install -y libapache2-mod-php5 php5 php5-cli php5-common php5-curl php5-dev php5-imagick php5-mcrypt php5-memcached php5-mysqlnd php5-xmlrpc memcached
@@ -26,9 +26,11 @@ if test "$install_software" = "Y"; then
 
 	# INSTALL PHP7.2
 	#sudo apt install -y libapache2-mod-php php7.2 php7.2-cli php7.2-common php7.2-curl php7.2-dev php7.2-mbstring php7.2-zip php7.2-mysql php7.2-xmlrpc
-	command "sudo apt-get install -y libapache2-mod-php php7.2 php7.2-cli php7.2-common php7.2-curl php7.2-dev php7.2-mbstring php7.2-zip php7.2-mysql php7.2-xmlrpc"
+	#command "sudo apt-get install -y libapache2-mod-php php7.2 php7.2-cli php7.2-common php7.2-curl php7.2-dev php7.2-mbstring php7.2-zip php7.2-mysql php7.2-xmlrpc"
+	# INSTALL PHP7.4
+	command "sudo apt-get install -y libapache2-mod-php php7.4 php7.4-cli php7.4-common php7.4-curl php7.4-dev php7.4-mbstring php7.4-zip php7.4-mysql php7.4-xmlrpc"
 	command "sudo apt-get install -y php-redis php-imagick php-igbinary php-msgpack" 
-	
+
 	outputHandler "comment" "Installing Redis"
 	command "sudo apt-get install -y redis"
 	

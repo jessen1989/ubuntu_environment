@@ -11,7 +11,8 @@ echo ""
 
 source /srv/tools/scripts/functions.sh
 enableSuperCow
-
+ubuntu_version=$(cat /etc/lsb-release | grep DISTRIB_RELEASE | cut -d \= -f2)
+outputHandler "comment" "You are running ubuntu version: $ubuntu_version"
 # GET INSTALL USER
 install_user="$(getUsername)"
 #$(whoami | awk '{print $1}')
@@ -34,8 +35,8 @@ outputHandler "comment" "Installing system for $install_user"
 
 
 # Change Folder Rights from root to current user
-outputHandler "comment" "Changing folder rights from root to $install_user"
-sudo chown -R $install_user:$install_user /home/$install_user/Sites
+#outputHandler "comment" "Changing folder rights from root to $install_user"
+#sudo chown -R $install_user:deploy /home/$install_user/Sites
 
 
 echo ""

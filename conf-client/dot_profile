@@ -1,4 +1,4 @@
-# parentnode_git_prompt
+#parentnode_git_prompt
 git_prompt () {
 	if ! git rev-parse --git-dir > /dev/null 2>&1; then
 	  return 0
@@ -17,8 +17,9 @@ git_prompt () {
 
 export PS1="\[$(tput bold)\]\[$(tput setaf 0)\]\u@\h \[$(tput setaf 2)\]\W\$(git_prompt)\[$(tput sgr0)\]\[$(tput setaf 4)\] \\$"
 export LC_ALL="en_GB.UTF-8"
-# parentnode_git_prompt
-# parentnode_alias
+#parentnode_git_prompt
+
+#parentnode_alias
 alias apache="sudo service apache2"
 alias sites="cd /srv/sites"
 alias enable_site="/srv/tools/scripts/enable_site.sh"
@@ -26,16 +27,25 @@ alias disable_site="/srv/tools/scripts/disable_site.sh"
 #alias update_env="sh /srv/tools/scripts/update_env.sh"
 #alias update_awstats="sudo php /srv/tools/scripts/update_awstats.php"
 #alias mysql_grant="php /srv/tools/scripts/mysql_grant.php"
-# parentnode_alias
-# parentnode_multi_user
+#parentnode_alias
+
+#parentnode_multi_user
 if [ -e "/srv/sites" ]; then 
     sites_symlink_exists=$(ls -Fla /srv | grep /home/ | cut -d \/ -f3)
     if [ "$sites_symlink_exists" != "$(echo $USER)"  ]; then
 		echo "Creating Symlink"
 		sudo rm /srv/sites
 		sudo ln -s /home/$(echo $USER)/Sites /srv/sites
-		sudo chown -R $(echo $USER):$(echo $USER) /home/$(echo $USER)/Sites
+		sudo chown -R $(echo $USER):deploy /home/$(echo $USER)/Sites
 		sudo service apache2 restart
+		deploy_www_data=$(grep deploy.*www-data /etc/group)
+		if [ -z "$deploy_www_data" ]; then
+			usermod -a -G deploy www-data
+		fi
+		deploy_current_user=$(grep deploy.*$(echo $USER) /etc/group)
+		if [ -z "$deploy_current_user" ]; then
+			usermod -a -G deploy $(echo $USER)
+		fi
     fi
 fi
-# parentnode_multi_user
+#parentnode_multi_user

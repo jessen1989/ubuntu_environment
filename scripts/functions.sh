@@ -113,7 +113,8 @@ testCommandResponse(){
 	do
 		command_to_test=$($1 | grep -E "${valid_responses[$response]}" || echo "")
 		if [ -n "$command_to_test" ]; then
-			echo "$(trimString "$command_to_test")" 
+			#echo "$(trimString "$command_to_test")"
+			echo "true" 
 		fi
 	done
 
@@ -138,11 +139,11 @@ checkMariadbPassword(){
 		mariadb_installed=$(service mariadb status || echo "")
 		#echo "Mariadb installed:  $mariadb_installed"
 		if [ -n "$mariadb_installed" ]; then
-			valid_status=("dead" "running")
-			mariadb_running=$(testCommandResponse "service mariadb status" "${valid_status[@]}" || echo "")
+			valid_status=("running")
+			#mariadb_running=$(testCommandResponse "service mariadb status" "${valid_status[@]}" || echo "")
 			#echo "Mariadb Running: $mariadb_running"
 			# if service is running
-			if [ -n "$(echo $mariadb_running | grep -o running)" ]; then
+			if [ "$(testCommandResponse "service mariadb status" "${valid_status[@]}")" = "true" ]; then
 				# check if we can login without password and do stuff return a line confirming if there are a password or an empty string
 				has_password=$(mysql -u root -E STATUS 2>&1 >/dev/null | grep "using password: NO" || echo "")
 				#echo "Has password: $has_password"
@@ -226,9 +227,11 @@ syncronizeAlias(){
 export -f syncronizeAlias
 
 deleteAndAppendSection(){
-    sed -i "/$1/,/$1/d" "$3" 
+    sed -i "/$1/,/$1/d" "$3"
     readdata=$( < $2)
-    echo "$readdata" | sed -n "/$1/,/$1/p" >> "$3"
+	#echo "$readdata"
+	echo "$readdata" | sed -n "/$1/,/$1/p" >> "$3"
+	#echo "$readdata" | sed -n "/$1/,/$1/p"
 }
 export -f deleteAndAppendSection
 
@@ -265,64 +268,61 @@ createOrModifyBashProfile(){
 	if [ "$server" == "dpkg-query: no packages found matching ubuntu-server" ]; then
 		echo "client conf"
 		conf="/srv/tools/conf-client/dot_profile"
+		conf_git="/srv/tools/conf-client/dot_profile_git"
 		conf_alias="/srv/tools/conf-client/dot_profile_alias"
-		install_bash_profile=$(grep -E ". $HOME/.bash_profile" $HOME/.bashrc || echo "")
+		conf_m_u="/srv/tools/conf-client/dot_profile_multi_user"
+		sync_alias="/srv/tools/conf-client/sync_alias"
+		server="false"
+		install_bash_profile=$(grep -E ".bash_profile" /home/$install_user/.bashrc || echo "")
 		#install_bash_profile=$(grep -E "\$HOME\/\.bash_profile" /home/$install_user/.bashrc || echo "")
 		if [ -z "$install_bash_profile" ]; then
 			outputHandler "comment" "Setting up .bash_profile"
 			# Add .bash_profile to .bashrc
-			echo "" >> $HOME/.bashrc
-			echo "if [ -f \"$HOME/.bash_profile\" ]; then" >> $HOME/.bashrc
-			echo " . $HOME/.bash_profile" >> $HOME/.bashrc
-			echo "fi" >> $HOME/.bashrc
+			echo "" >> /home/$install_user/.bashrc
+			echo "if [ -f \"/home/$install_user/.bash_profile\" ]; then" >> /home/$install_user/.bashrc
+			echo " . /home/$install_user/.bash_profile" >> /home/$install_user/.bashrc
+			echo "fi" >> /home/$install_user/.bashrc
 		else
 			outputHandler "comment" ".bash_profile Installed"
 		fi
 	else
 		echo "server conf"
 		conf="/srv/tools/conf-server/dot_profile"
+		conf_git="/srv/tools/conf-server/dot_profile_git"
 		conf_alias="/srv/tools/conf-server/dot_profile_alias"
-	
+		sync_alias="/srv/tools/conf-server/sync_alias"
+		server="true"
 	fi
-	if [ "$(fileExists "$HOME/.bash_profile")" = true ]; then
+	if [ -f /home/$install_user/.bash_profile ]; then
 		outputHandler "comment" ".bash_profile Exist"
 		bash_profile_modify_array=("[Yn]")
 		bash_profile_modify=$(ask "Do you want to modify existing .bash_profile (Y/n) !this will override existing .bash_profile!" "${bash_profile_modify_array[@]}" "option bash profile")
 		export bash_profile_modify
 	else
 		#outputHandler "comment" "Installing \.bash_profile"´
-		sudo cp $conf $HOME/.bash_profile
+		sudo cp $conf /home/$install_user/.bash_profile
+		chown $install_user:$install_user /home/$install_user/.bash_profile
 	fi
 	if [ "$bash_profile_modify" = "Y" ]; then 
 		outputHandler "comment" "Modifying existing .bash_profile"
-		# Switch case checking for either a git prompt definition is present or alias is present allready
-		case "true" in 
-			$(checkFileContent "git_prompt ()" "$HOME/.bash_profile") | $(checkFileContent "alias" "$HOME/.bash_profile"))
-				# if git prompt definition is provided by parentnode
-				if [ "$(checkFileContent "# parentnode_git_prompt" "$HOME/.bash_profile")" = "true" ]; then
-					# update existing git prompt definition section
-					deleteAndAppendSection "# parentnode_git_prompt" "$conf" "$HOME/.bash_profile"
-				fi
-				# if alias is provided by parentnode
-				if [ "$(checkFileContent "# parentnode_alias" "$HOME/.bash_profile")" = "true" ]; then
-					# update existing alias section
-					deleteAndAppendSection "# parentnode_alias" "$conf" "$HOME/.bash_profile"
-				else
-					# if alias is not parentnode alias add them  
-					syncronizeAlias
-				fi	
-				# if more than one user is present at the system (client only) add the multiuser section
-				deleteAndAppendSection "# parentnode_multi_user" "$conf" "$HOME/.bash_profile"
-				;;
-			# if .bash_profile is not listing any of the above, we must asume .bash_profile is broken.
-			*)
-				sudo rm $HOME/.bash_profile
-				sudo cp $conf $HOME/.bash_profile
-				;;
-		esac
+		
+		deleteAndAppendSection "#parentnode_git_prompt" "$conf_git" "/home/$install_user/.bash_profile"
+		deleteAndAppendSection "#parentnode_alias" "$conf_alias" "/home/$install_user/.bash_profile"
+		deleteAndAppendSection "#parentnode_multi_user" "$conf_m_u" "/home/$install_user/.bash_profile"
+		#if [ "$server" = "false" ]; then
+		#	
+		#fi
+		#if [ "$(checkFileContent "# parentnode_alias" "/home/$install_user/.bash_profile")" = "true" ]; then
+		#	deleteAndAppendSection "# parentnode_alias" "$conf" "/home/$install_user/.bash_profile"
+		#else
+		#	syncronizeAlias "alias" "$conf_alias" "/home/$install_user/.bash_profile"
+		#fi
+		#if [ "$server" = "false" ]; then 
+		#	deleteAndAppendSection "# parentnode_multi_user" "$conf" "/home/$install_user/.bash_profile"
+		#fi	
 	else
 		# parentnode alias is necessary for a parentnode environment
-		syncronizeAlias "alias" "$conf_alias" "$HOME/.bash_profile"
+		syncronizeAlias "alias" "$sync_alias" "/home/$install_user/.bash_profile"
 	fi
 	
 }

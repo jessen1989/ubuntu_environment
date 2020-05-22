@@ -1,4 +1,4 @@
-# parentnode_git_prompt
+#parentnode_git_prompt
 # ~/.profile: executed by the command interpreter for login shells.
 # This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login
 # exists.
@@ -42,8 +42,8 @@ git_prompt () {
 export PS1="\[$(tput bold)\]\[$(tput setaf 0)\]\u@\h \[$(tput setaf 2)\]\W\$(git_prompt)\[$(tput sgr0)\]\[$(tput setaf 4)\] \\$"
 
 export LC_ALL="en_GB.UTF-8"
-# parentnode_git_prompt
-# parentnode_alias
+#parentnode_git_prompt
+#parentnode_alias
 alias apache="sudo service apache2"
 
 alias update_conf="/srv/tools/scripts/update_conf.sh"
@@ -55,4 +55,4 @@ alias sites="cd /srv/sites"
 #alias update_env="sh /srv/tools/scripts/update_env.sh"
 #alias update_awstats="sudo php /srv/tools/scripts/update_awstats.php"
 #alias mysql_grant="php /srv/tools/scripts/mysql_grant.php"
-# parentnode_alias
+#parentnode_alias

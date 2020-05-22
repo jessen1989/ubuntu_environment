@@ -88,6 +88,27 @@ if test "$install_webserver_conf" = "Y"; then
 	fi	
 fi
 
+# ## CREATE DEPLOY GROUP AND USER
+install_deploy=$(grep -E "^deploy:" /etc/group || echo "")
+if [ -z "$install_deploy" ]; then
+
+	outputHandler "comment" "Creating deploy user"
+	# CREATE GROUP
+	groupadd deploy
+	# ADD DEPLOY USER TO GROUP
+	useradd -g deploy deploy
+	# ADD RELEVANT USERS TO DEPLOY GROUP
+	usermod -a -G deploy www-data
+fi
+
+
+# ADD CURRENT USER TO DEPLOY GROUP
+install_deploy_user=$(grep -E "^deploy:.+$install_user" /etc/group || echo "")
+if [ -z "$install_deploy_user" ]; then
+	outputHandler "comment" "Adding $install_user to deploy group"
+	usermod -a -G deploy $install_user
+fi
+
 
 outputHandler "comment" "Setting Default GIT User setting"
 # SETTING DEFAULT GIT USER

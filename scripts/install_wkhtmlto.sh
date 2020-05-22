@@ -5,7 +5,11 @@ outputHandler "comment" "http://wkhtmltopdf.org - LGPLv3"
 if test "$install_wkhtml" = "Y"; then
 
 	# WKHTML - FORCE PASSWORD RENEWAL
-	outputHandler "comment" "Using /srv/tools/bin/wkhtmltopdf"
+	outputHandler "comment" "Installing wkhtmltopdf into tools"
+	sudo tar -xzvf /srv/tools/bin/wkhtml.tar.gz -C /srv/tools/bin/
+	#sudp cp /home/$install_user/wkhtmltopdf /srv/tools/bin/
+	sudo rm /srv/tools/bin/wkhtml.tar.gz
+	/srv/tools/bin/wkhtmltopdf --version
 	#sudo apt install -y wkhtmltopdf
 	# installedPackage "wkhtmltopdf"
 	# sudo cp /srv/tools/conf/wkhtmltoimage /usr/bin/static_wkhtmltoimage

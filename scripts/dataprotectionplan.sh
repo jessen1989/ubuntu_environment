@@ -1,6 +1,4 @@
 # Usage
-# OLD: crontab: 45 3 * * * /srv/tools/scripts/dataprotectionplan.sh #DB# #DB-USER# #DB-PASS# #RECIPIENT1[,RECIPIENT2]#
-
 # crontab: 45 3 * * * /srv/tools/scripts/dataprotectionplan.sh #DB# #RECIPIENT1[,RECIPIENT2]#
 
 # Username and Password must be found in /srv/crons/conf/db/#DB# as username|password (no newline)
