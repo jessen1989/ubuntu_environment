@@ -40,7 +40,7 @@ export install_mail
 
 #read -p "Your email address: " install_email
 #export install_email
-outputHandler "comment" "Default apache email configuration."
+outputHandler "section" "Default apache email configuration."
 # Setting mail address for use with system notification mail
 if [ "$(fileExists "/etc/apache2/sites-available/default.conf")" = "true" ]; then 
 	outputHandler "comment" "defaul.conf Exist"
@@ -72,17 +72,17 @@ fi
 
 # HTACCESS PASSWORD
 if test "$install_htpassword_for_user" = "Y"; then
-
+	outputHandler "section" "HTACCESS password"
 	#read -s -p "HTACCESS password for $install_user: " install_htaccess_password
 	password_array=("[A-Za-z0-9\!\@\$]{8,30}")
 	install_htaccess_password=$( ask "HTACCESS password for $install_user" "${password_array[@]}" "password")
 	export install_htaccess_password
 fi
 
-outputHandler "comment" "Provide SSH Port"
+
 # SSH PORT
 if test "$install_security" = "Y"; then
-
+	outputHandler "section" "Provide SSH Port"
 	# GET CURRENT PORT NUMBER
 	port_number=$(grep -E "^Port\ ([0-9]+)$" /etc/ssh/sshd_config | sed "s/Port //;")
 	#read -p "Specify SSH port (leave empty to keep $port_number): " install_port
@@ -111,9 +111,9 @@ fi
 createOrModifyBashProfile
 
 # MYSQL ROOT PASSWORD
-outputHandler "comment" "Provide MariaDB database password "
+
 if test "$install_webserver_conf" = "Y"; then
-	
+	outputHandler "section" "Provide MariaDB database password"
 	#Check if mariadb are installed and running
 	if [ "$(checkMariadbPassword)" = "false" ]; then
 		password_array=("[A-Za-z0-9\!\@\$]{8,30}")
@@ -154,7 +154,7 @@ fi
 
 
 # SETTING DEFAULT GIT USER
-outputHandler "comment" "Setting Default GIT User setting"
+outputHandler "section" "Setting GIT User setting"
 # SETTING DEFAULT GIT USER
 
 # Checks if git credential are allready set, promts for input if not
@@ -183,12 +183,14 @@ outputHandler "comment" "git user email: $(git config --global user.email)"
 git config --global credential.helper cache
 outputHandler "comment" "git credential.helper: $(git config --global credential.helper)"
 
-outputHandler "comment" "Time zone"
+outputHandler "section" "Time zone"
 
-look_for_ex_timezone=$(sudo timedatectl status | grep "Time zone: " | cut -d ':' -f2)
-if [ -z "$look_for_ex_timezone" ]; then
-	outputHandler "comment" "Setting Time zone to Europe/Copenhagen"
-	sudo timedatectl set-timezone "Europe/Copenhagen"
-else 
-	outputHandler "comment" "Existing time zone values: $look_for_ex_timezone"
-fi
+#look_for_ex_timezone=$(sudo timedatectl status | grep "Time zone: " | cut -d ':' -f2)
+#if [ -z "$look_for_ex_timezone" ]; then
+#	outputHandler "comment" "Setting Time zone to Europe/Copenhagen"
+#	sudo timedatectl set-timezone "Europe/Copenhagen"
+#else 
+#	outputHandler "comment" "Existing time zone values: $look_for_ex_timezone"
+#fi
+outputHandler "comment" "Setting Time zone to Europe/Copenhagen"
+sudo timedatectl set-timezone "Europe/Copenhagen"
